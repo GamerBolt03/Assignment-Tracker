@@ -1,0 +1,11 @@
+*.zip
+*.exe
+*.pyz
+*.pyc
+build/
+dist/
+__pycache__/
+*.egg-info/
+.venv/
+venv/
+env/

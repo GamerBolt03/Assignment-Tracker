@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assignment Tracker</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1e1e1e;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #e0e0e0;
+  --text2: #777;
+  --text3: #555;
+  --primary: #4a9eff;
+  --primary-hover: #3a8eef;
+  --danger: #ff4444;
+  --danger-hover: #e03333;
+  --success: #44cc66;
+  --success-hover: #33bb55;
+  --warning: #ff8844;
+  --gmail: #ff5555;
+}
+body.light {
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface2: #f0f0f0;
+  --border: #ddd;
+  --border2: #ccc;
+  --text: #222;
+  --text2: #666;
+  --text3: #999;
+}
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+header h1 { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; }
+body.light header h1 { color: var(--text); }
+.header-right { display: flex; align-items: center; gap: 10px; }
+#status-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+#status-badge.connected { border-color: var(--success); color: var(--success); background: rgba(68,204,102,0.08); }
+#status-badge.gmail { border-color: var(--gmail); color: var(--gmail); background: rgba(255,85,85,0.08); }
+.settings-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.settings-btn:hover { border-color: var(--text2); color: var(--text); }
+.container { max-width: 1100px; margin: 0 auto; padding: 12px 16px; }
+
+.toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+.tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border: none;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  font-family: inherit;
+}
+.tab:last-child { border-right: none; }
+.tab:hover { background: var(--surface); color: var(--text); }
+.tab.active { background: var(--surface); color: #fff; font-weight: 600; }
+body.light .tab.active { color: var(--text); }
+.tab .count {
+  font-size: 10px;
+  background: var(--bg);
+  padding: 1px 6px;
+  color: var(--text2);
+  margin-left: 4px;
+}
+.tab.active .count { background: rgba(74,158,255,0.15); color: var(--primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.email-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  min-height: 120px;
+}
+.email-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.email-item:last-child { border-bottom: none; }
+.email-item:hover { background: var(--surface2); }
+.email-content { flex: 1; min-width: 0; }
+.email-sender { font-size: 11px; font-weight: 600; color: #fff; }
+body.light .email-sender { color: var(--text); }
+.email-subject { font-size: 13px; color: var(--text); margin: 1px 0 3px; }
+.email-body { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-date { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.email-actions { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; }
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+}
+.btn-primary { background: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); }
+.btn-danger:hover { background: var(--danger-hover); }
+.btn-success { background: var(--success); }
+.btn-success:hover { background: var(--success-hover); }
+.btn-warning { background: var(--warning); }
+.btn-warning:hover { background: var(--warning-hover); }
+.btn-outline {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { background: var(--surface2); border-color: var(--text2); }
+.btn-google {
+  background: transparent;
+  color: var(--gmail);
+  border: 1px solid var(--gmail);
+}
+.btn-google:hover { background: rgba(255,85,85,0.08); }
+.btn-sm { padding: 4px 8px; font-size: 10px; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text2);
+  text-align: center;
+}
+.empty-state p { font-size: 13px; max-width: 380px; line-height: 1.5; }
+
+/* Settings Overlay */
+.settings-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 900;
+  display: none;
+}
+.settings-overlay.open { display: block; }
+.settings-panel {
+  position: fixed;
+  top: 0; right: -420px;
+  width: 400px;
+  max-width: 100vw;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 1000;
+  transition: right 0.25s;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.settings-panel.open { right: 0; }
+.settings-panel::-webkit-scrollbar { width: 6px; }
+.settings-panel::-webkit-scrollbar-track { background: var(--bg); }
+.settings-panel::-webkit-scrollbar-thumb { background: var(--border2); }
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.settings-header h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); }
+.settings-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.settings-close:hover { border-color: var(--text2); color: var(--text); }
+.settings-body { padding: 16px 20px; flex: 1; }
+.settings-section { margin-bottom: 24px; }
+.settings-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text3);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  gap: 12px;
+}
+.settings-row label { font-size: 12px; color: var(--text); }
+.settings-row .hint { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.settings-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 140px;
+}
+.settings-select:focus { outline: none; border-color: var(--primary); }
+.settings-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 100%;
+}
+.settings-input:focus { outline: none; border-color: var(--primary); }
+
+.toggle-wrap { display: flex; gap: 2px; }
+.toggle-btn {
+  padding: 4px 12px;
+  font-size: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.toggle-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.toggle-btn:first-child { }
+.toggle-btn:last-child { }
+
+.llm-status {
+  font-size: 11px;
+  color: var(--text2);
+  padding: 6px 0;
+}
+.llm-status .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+.llm-status .dot.green { background: var(--success); }
+.llm-status .dot.yellow { background: var(--warning); }
+.llm-status .dot.red { background: var(--danger); }
+.llm-status .dot.blue { background: var(--primary); }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.25s;
+  z-index: 2000;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--success); }
+.toast.error { border-color: var(--danger); }
+.toast.info { border-color: var(--primary); }
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--primary);
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.msg { margin-top: 6px; font-size: 11px; color: var(--text2); line-height: 1.4; white-space: pre-wrap; }
+
+/* Guide Modal */
+.guide-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7); z-index: 2000;
+  display: none; align-items: center; justify-content: center;
+}
+.guide-overlay.open { display: flex; }
+.guide-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  width: 560px; max-width: 95vw; max-height: 85vh;
+  display: flex; flex-direction: column;
+}
+.guide-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+}
+.guide-header h3 { font-size: 13px; font-weight: 600; color: var(--text); }
+.guide-close {
+  background: none; border: 1px solid var(--border); color: var(--text2);
+  padding: 2px 8px; cursor: pointer; font-size: 16px;
+}
+.guide-close:hover { border-color: var(--text2); color: var(--text); }
+.guide-body { padding: 20px; overflow-y: auto; flex: 1; }
+.guide-step { margin-bottom: 20px; }
+.guide-step-num {
+  font-size: 10px; font-weight: 600; color: var(--primary);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.guide-step h4 { font-size: 13px; color: var(--text); margin-bottom: 6px; }
+.guide-step p, .guide-step li {
+  font-size: 12px; color: var(--text2); line-height: 1.6;
+}
+.guide-step ul { padding-left: 18px; }
+.guide-step li { margin-bottom: 4px; }
+.guide-step code {
+  background: var(--bg); padding: 2px 6px; font-size: 11px;
+  border: 1px solid var(--border); color: var(--primary);
+}
+.guide-link {
+  color: var(--primary); text-decoration: none; border-bottom: 1px dotted var(--primary);
+}
+.guide-link:hover { color: var(--primary-hover); }
+.guide-upload-area {
+  border: 2px dashed var(--border); padding: 20px; text-align: center;
+  margin: 10px 0; cursor: pointer;
+}
+.guide-upload-area:hover { border-color: var(--primary); }
+.guide-upload-area p { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+.guide-upload-area .btn-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+.guide-filename {
+  font-size: 11px; color: var(--success); padding: 4px 0;
+}
+.guide-footer {
+  display: flex; justify-content: flex-end; gap: 6px;
+  padding: 12px 20px; border-top: 1px solid var(--border);
+}
+.help-icon {
+  display: inline-block; width: 16px; height: 16px; line-height: 16px;
+  text-align: center; font-size: 10px; font-weight: 700;
+  border: 1px solid var(--text3); color: var(--text3); cursor: pointer;
+  margin-left: 4px; vertical-align: middle;
+}
+.help-icon:hover { border-color: var(--text); color: var(--text); }
+.help-box {
+  display: none; background: var(--bg); border: 1px solid var(--border);
+  padding: 12px; margin-top: 8px; font-size: 11px; color: var(--text2); line-height: 1.6;
+}
+.help-box.open { display: block; }
+.help-box code { background: var(--surface2); padding: 1px 4px; }
+.client-secret-status {
+  font-size: 11px; padding: 4px 0;
+}
+
+@media (max-width: 600px) {
+  .settings-panel { width: 100vw; right: -100vw; }
+  .email-item { flex-direction: column; }
+  .email-actions { width: 100%; }
+  header { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body class="{{ theme or 'dark' }}">
+
+<header>
+  <h1>Assignment Tracker</h1>
+  <div class="header-right">
+    <span id="status-badge">Disconnected</span>
+    <button class="settings-btn" onclick="toggleSettings()" title="Settings">&#9881;</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="toolbar">
+    <button class="btn btn-success" onclick="fetchEmails()" id="fetch-btn" disabled>Fetch Emails</button>
+    <button class="btn btn-primary" onclick="updateNewEmails()" id="update-btn" disabled>Update for New Emails</button>
+    <button class="btn btn-outline" onclick="resortAll()" id="resort-btn">Re-sort All</button>
+    <span id="resort-info" style="font-size:10px;color:var(--text3);align-self:center;margin-left:4px"></span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('emails', this)">
+      Emails <span class="count" id="email-count">0</span>
+    </button>
+    <button class="tab" onclick="switchTab('assignments', this)">
+      Assignments <span class="count" id="assignment-count">0</span>
+    </button>
+  </div>
+
+  <div class="tab-content active" id="tab-emails">
+    <div class="email-list" id="email-list">
+      <div class="empty-state"><p>No emails yet. Connect in Settings, then Fetch Emails.</p></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-assignments">
+    <div class="email-list" id="assignment-list">
+      <div class="empty-state"><p>No assignments detected.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="settings-overlay" id="settings-overlay" onclick="closeSettings(event)"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <h2>Settings</h2>
+    <button class="settings-close" onclick="toggleSettings()">&times;</button>
+  </div>
+  <div class="settings-body">
+
+    <div class="settings-section">
+      <div class="settings-section-title">Connection 1</div>
+
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <label style="font-size:12px;font-weight:600;color:var(--gmail);">Gmail API</label>
+          <button class="btn btn-outline btn-sm" onclick="openGmailGuide()">Setup Guide</button>
+        </div>
+        <div id="client-secret-status" class="client-secret-status"></div>
+        <div id="gmail-section" style="margin-top:6px;">
+          <button class="btn btn-google" onclick="gmailConnect('1')" id="gmail-connect-btn" style="width:100%;text-align:center;">Connect with Google</button>
+          <button class="btn btn-outline" onclick="gmailDisconnect('1')" id="gmail-disconnect-btn" style="display:none;width:100%;text-align:center;">Disconnect Gmail</button>
+        </div>
+        <div id="gmail-msg" class="msg"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);margin:10px 0;"></div>
+
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);">IMAP (alternative)</label>
+          <span class="help-icon" onclick="toggleImapHelp(1)" title="IMAP setup help">?</span>
+        </div>
+        <div class="help-box" id="imap-help-1">
+          <strong>Enabling IMAP in Gmail:</strong><br>
+          1. Go to Gmail Settings → See all settings → Forwarding and POP/IMAP<br>
+          2. Enable IMAP Access, click Save<br>
+          3. <strong>Use an App Password</strong> instead of your regular password:<br>
+          &nbsp;&nbsp;• Go to <a class="guide-link" href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a><br>
+          &nbsp;&nbsp;• Select Mail and your device, generate a 16-char password<br>
+          4. Server: <code>imap.gmail.com</code>, Port: <code>993</code><br>
+          5. Other providers: use your provider's IMAP server/port
+        </div>
+        <input class="settings-input" type="email" id="settings-email" placeholder="Email" style="margin-bottom:6px;">
+        <input class="settings-input" type="password" id="settings-password" placeholder="App Password" style="margin-bottom:6px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <input class="settings-input" type="text" id="settings-imap-server" placeholder="imap.gmail.com">
+          <input class="settings-input" type="number" id="settings-imap-port" value="993">
+        </div>
+        <button class="btn btn-primary" onclick="connectImap('1')" id="settings-imap-connect-btn" style="width:100%;text-align:center;">Connect IMAP</button>
+        <button class="btn btn-outline" onclick="disconnectImap('1')" id="settings-imap-disconnect-btn" style="display:none;width:100%;text-align:center;">Disconnect IMAP</button>
+        <div id="settings-imap-msg" class="msg"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Connection 2</div>
+
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;">
+          <label style="font-size:12px;font-weight:600;color:var(--gmail);">Gmail API</label>
+          <span class="help-icon" onclick="openGmailGuide()" title="Gmail setup guide">?</span>
+        </div>
+        <div id="gmail-section-2">
+          <button class="btn btn-google" onclick="gmailConnect('2')" id="gmail-connect-btn-2" style="width:100%;text-align:center;">Connect with Google</button>
+          <button class="btn btn-outline" onclick="gmailDisconnect('2')" id="gmail-disconnect-btn-2" style="display:none;width:100%;text-align:center;">Disconnect Gmail</button>
+        </div>
+        <div id="gmail-msg-2" class="msg"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);margin:10px 0;"></div>
+
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;">
+          <label style="font-size:12px;font-weight:600;color:var(--text2);">IMAP (alternative)</label>
+          <span class="help-icon" onclick="toggleImapHelp(2)" title="IMAP setup help">?</span>
+        </div>
+        <div class="help-box" id="imap-help-2">
+          <strong>Enabling IMAP in Gmail:</strong><br>
+          1. Go to Gmail Settings → See all settings → Forwarding and POP/IMAP<br>
+          2. Enable IMAP Access, click Save<br>
+          3. <strong>Use an App Password</strong> instead of your regular password:<br>
+          &nbsp;&nbsp;• Go to <a class="guide-link" href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a><br>
+          &nbsp;&nbsp;• Select Mail and your device, generate a 16-char password<br>
+          4. Server: <code>imap.gmail.com</code>, Port: <code>993</code><br>
+          5. Other providers: use your provider's IMAP server/port
+        </div>
+        <input class="settings-input" type="email" id="settings-email-2" placeholder="Email" style="margin-bottom:6px;">
+        <input class="settings-input" type="password" id="settings-password-2" placeholder="App Password" style="margin-bottom:6px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <input class="settings-input" type="text" id="settings-imap-server-2" placeholder="imap.gmail.com">
+          <input class="settings-input" type="number" id="settings-imap-port-2" value="993">
+        </div>
+        <button class="btn btn-primary" onclick="connectImap('2')" id="settings-imap-connect-btn-2" style="width:100%;text-align:center;">Connect IMAP</button>
+        <button class="btn btn-outline" onclick="disconnectImap('2')" id="settings-imap-disconnect-btn-2" style="display:none;width:100%;text-align:center;">Disconnect IMAP</button>
+        <div id="settings-imap-msg-2" class="msg"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Classification</div>
+      <div class="settings-row">
+        <div>
+          <label>Method</label>
+          <div class="hint">How emails are sorted into Assignments</div>
+        </div>
+        <select class="settings-select" id="class-method" onchange="saveSetting('classification_method', this.value)">
+          <option value="keyword">Keyword-based</option>
+          <option value="llm">LLM-based (AI)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <div>
+          <label>Active Model</label>
+          <div class="hint" id="llm-model-hint">Select and download a model below</div>
+        </div>
+        <select class="settings-select" id="llm-model" onchange="onModelChange(this.value)">
+          <option value="distilbert">distilbert (260MB)</option>
+          <option value="gemma-2b">gemma-2b (3.1GB)</option>
+        </select>
+      </div>
+      <div id="llm-models-status"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Trusted Senders</div>
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <label style="font-size:11px;color:var(--text2);">Emails from these addresses are always classified as assignments.</label>
+        <div style="display:flex;gap:6px;margin:6px 0;">
+          <input class="settings-input" type="email" id="trusted-input" placeholder="teacher@school.edu" style="flex:1;">
+          <button class="btn btn-primary btn-sm" onclick="addTrustedSender()">Add</button>
+        </div>
+        <div id="trusted-list"></div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Appearance</div>
+      <div class="settings-row">
+        <label>Theme</label>
+        <div class="toggle-wrap">
+          <button class="toggle-btn" onclick="setTheme('dark')" id="theme-dark">Dark</button>
+          <button class="toggle-btn" onclick="setTheme('light')" id="theme-light">Light</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Actions</div>
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;">
+        <button class="btn btn-outline" onclick="resortAll()" style="width:100%;text-align:center;">Re-sort All Emails</button>
+        <div class="hint" style="margin-top:4px;" id="resort-hint">Re-runs classification on all stored emails.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="guide-overlay" id="gmail-guide" onclick="if(event.target===this)closeGmailGuide()">
+  <div class="guide-modal">
+    <div class="guide-header">
+      <h3>Gmail API Setup Guide</h3>
+      <button class="guide-close" onclick="closeGmailGuide()">&times;</button>
+    </div>
+    <div class="guide-body">
+      <div class="guide-step">
+        <div class="guide-step-num">Step 1</div>
+        <h4>Create a Google Cloud Project</h4>
+        <p>Go to <a class="guide-link" href="https://console.cloud.google.com/projectcreate" target="_blank">Google Cloud Console</a> and create a new project. Name it anything (e.g. "Assignment Tracker").</p>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">Step 2</div>
+        <h4>Enable the Gmail API</h4>
+        <p>In your project, go to <strong>APIs &amp; Services &rarr; Library</strong>, search for "Gmail API", click it, and click <strong>Enable</strong>.</p>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">Step 3</div>
+        <h4>Configure OAuth Consent Screen</h4>
+        <ul>
+          <li>Go to <strong>APIs &amp; Services &rarr; OAuth consent screen</strong></li>
+          <li>Choose <strong>External</strong> (anyone can test), click Create</li>
+          <li>App name: "Assignment Tracker", enter your email, click Save</li>
+          <li>Skip scopes, skip test users (or add your email if asked)</li>
+          <li>Click Back to Dashboard</li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">Step 4</div>
+        <h4>Create OAuth Credentials</h4>
+        <ul>
+          <li>Go to <strong>APIs &amp; Services &rarr; Credentials</strong></li>
+          <li>Click <strong>+ Create Credentials &rarr; OAuth client ID</strong></li>
+          <li>Application type: <strong>Desktop app</strong></li>
+          <li>Name: "Assignment Tracker"</li>
+          <li>Click <strong>Create</strong></li>
+        </ul>
+      </div>
+      <div class="guide-step">
+        <div class="guide-step-num">Step 5</div>
+        <h4>Download &amp; Upload client_secret.json</h4>
+        <p>Click <strong>Download JSON</strong> on the credential you just created.</p>
+        <div class="guide-upload-area" id="guide-upload-area" onclick="document.getElementById('guide-file-input').click()">
+          <span class="btn-icon">&#128196;</span>
+          <p>Click to select your <code>client_secret.json</code> file</p>
+          <div id="guide-upload-status"></div>
+        </div>
+        <input type="file" id="guide-file-input" accept=".json" style="display:none" onchange="uploadClientSecret(this)">
+      </div>
+    </div>
+    <div class="guide-footer">
+      <button class="btn btn-outline" onclick="closeGmailGuide()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let isConnected = false;
+
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+  document.getElementById('settings-overlay').classList.toggle('open');
+}
+
+function closeSettings(e) {
+  if (e.target === e.currentTarget) toggleSettings();
+}
+
+/* Theme */
+function setTheme(theme) {
+  document.body.className = theme;
+  document.getElementById('theme-dark').classList.toggle('active', theme === 'dark');
+  document.getElementById('theme-light').classList.toggle('active', theme === 'light');
+  saveSetting('theme', theme);
+}
+
+function applyTheme(theme) {
+  document.body.className = theme || 'dark';
+  document.getElementById('theme-dark').classList.toggle('active', (theme || 'dark') === 'dark');
+  document.getElementById('theme-light').classList.toggle('active', (theme || 'dark') === 'light');
+}
+
+/* Settings */
+async function saveSetting(key, value) {
+  await fetch('/api/settings', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({[key]: value})
+  });
+}
+
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const s = await res.json();
+    if (s.theme) applyTheme(s.theme);
+    if (s.classification_method) document.getElementById('class-method').value = s.classification_method;
+    if (s.llm_model) document.getElementById('llm-model').value = s.llm_model;
+    if (s.imap_email) document.getElementById('settings-email').value = s.imap_email;
+    if (s.imap_server) document.getElementById('settings-imap-server').value = s.imap_server;
+    if (s.imap_port) document.getElementById('settings-imap-port').value = s.imap_port;
+    if (s.imap_email_2) document.getElementById('settings-email-2').value = s.imap_email_2;
+    if (s.imap_server_2) document.getElementById('settings-imap-server-2').value = s.imap_server_2;
+    if (s.imap_port_2) document.getElementById('settings-imap-port-2').value = s.imap_port_2;
+    if (s.last_resort) document.getElementById('resort-info').textContent = 'Last: ' + s.last_resort;
+    if (s.trusted_senders) renderTrustedSenders(s.trusted_senders);
+  } catch {}
+}
+
+/* Gmail */
+function gmailConnect(acct) {
+  acct = acct || '1';
+  const suffix = acct === '2' ? '-2' : '';
+  const btn = document.getElementById('gmail-connect-btn' + suffix);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  const msgEl = document.getElementById('gmail-msg' + suffix);
+  fetch('/api/gmail/auth-url?account=' + acct)
+    .then(r => r.text())
+    .then(text => {
+      let data;
+      try { data = JSON.parse(text); } catch(e) { if(msgEl) msgEl.innerHTML = 'Server error'; return; }
+      if (data.status === 'ok' && data.auth_url) {
+        window.open(data.auth_url, '_blank', 'width=600,height=700');
+        checkGmailAuth(acct);
+      } else if(msgEl) { msgEl.innerHTML = data.message; }
+    })
+    .catch(() => { if(msgEl) msgEl.innerHTML = 'Request failed'; })
+    .finally(() => { btn.disabled = false; btn.innerHTML = 'Connect with Google'; });
+}
+
+function checkGmailAuth(acct) {
+  acct = acct || '1';
+  const suffix = acct === '2' ? '-2' : '';
+  const connectBtn = document.getElementById('gmail-connect-btn' + suffix);
+  const disconnectBtn = document.getElementById('gmail-disconnect-btn' + suffix);
+  const msgEl = document.getElementById('gmail-msg' + suffix);
+  fetch('/api/gmail/status')
+    .then(r => r.json())
+    .then(d => {
+      const authed = acct === '2' ? d.authenticated_2 : d.authenticated;
+      if (authed) {
+        isConnected = true;
+        document.getElementById('fetch-btn').disabled = false;
+        if(connectBtn) connectBtn.style.display = 'none';
+        if(disconnectBtn) disconnectBtn.style.display = 'block';
+        updateStatusBadge();
+        if(msgEl) msgEl.innerHTML = '<span style="color:var(--success)">Authenticated</span>';
+        showToast('Gmail account ' + acct + ' connected', 'success');
+      } else if (d.has_client_secret) { setTimeout(() => checkGmailAuth(acct), 2000); }
+      else { if(msgEl) msgEl.innerHTML = 'Place client_secret.json in app folder'; }
+    })
+    .catch(() => setTimeout(() => checkGmailAuth(acct), 2000));
+}
+
+function setGmailMsg(msg, type) {
+  document.getElementById('gmail-msg').innerHTML = msg;
+}
+
+async function gmailDisconnect(acct) {
+  acct = acct || '1';
+  const suffix = acct === '2' ? '-2' : '';
+  await fetch('/api/gmail/logout', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({account: acct})});
+  const connectBtn = document.getElementById('gmail-connect-btn' + suffix);
+  const disconnectBtn = document.getElementById('gmail-disconnect-btn' + suffix);
+  const msgEl = document.getElementById('gmail-msg' + suffix);
+  if(connectBtn) connectBtn.style.display = 'block';
+  if(disconnectBtn) disconnectBtn.style.display = 'none';
+  if(msgEl) msgEl.innerHTML = '';
+  updateStatusBadge();
+  showToast('Gmail account ' + acct + ' disconnected', 'info');
+}
+
+/* Gmail Setup Guide */
+function openGmailGuide() {
+  document.getElementById('gmail-guide').classList.add('open');
+  checkClientSecretStatus();
+}
+
+function closeGmailGuide() {
+  document.getElementById('gmail-guide').classList.remove('open');
+}
+
+async function checkClientSecretStatus() {
+  try {
+    const res = await fetch('/api/gmail/status');
+    const d = await res.json();
+    const el = document.getElementById('client-secret-status');
+    const uploadStatus = document.getElementById('guide-upload-status');
+    if (d.has_client_secret) {
+      el.innerHTML = '<span style="color:var(--success)">client_secret.json found</span>';
+      if (uploadStatus) uploadStatus.innerHTML = '<span style="color:var(--success)">&#10003; Uploaded</span>';
+    } else {
+      el.innerHTML = '<span style="color:var(--warning)">client_secret.json missing — use the Setup Guide</span>';
+      if (uploadStatus) uploadStatus.innerHTML = '';
+    }
+  } catch {}
+}
+
+async function uploadClientSecret(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('guide-upload-status');
+  statusEl.innerHTML = '<span class="spinner"></span> Uploading...';
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch('/api/gmail/upload-client-secret', {method:'POST', body: formData});
+    const d = await res.json();
+    if (d.status === 'ok') {
+      statusEl.innerHTML = '<span style="color:var(--success)">&#10003; client_secret.json saved successfully</span>';
+      showToast('client_secret.json uploaded', 'success');
+      document.getElementById('gmail-connect-btn').disabled = false;
+      checkClientSecretStatus();
+    } else {
+      statusEl.innerHTML = '<span style="color:var(--danger)">Error: ' + esc(d.message) + '</span>';
+      showToast('Upload failed: ' + d.message, 'error');
+    }
+  } catch(err) {
+    statusEl.innerHTML = '<span style="color:var(--danger)">Upload error</span>';
+    showToast('Upload error', 'error');
+  }
+}
+
+function toggleImapHelp(acct) {
+  const el = document.getElementById('imap-help-' + acct);
+  if (el) el.classList.toggle('open');
+}
+
+/* IMAP */
+async function connectImap(acct) {
+  acct = acct || '1';
+  const suffix = acct === '2' ? '-2' : '';
+  const email = document.getElementById('settings-email' + suffix).value.trim();
+  const password = document.getElementById('settings-password' + suffix).value;
+  const imap_server = document.getElementById('settings-imap-server' + suffix).value.trim();
+  const imap_port = parseInt(document.getElementById('settings-imap-port' + suffix).value) || 993;
+  if (!email || !password || !imap_server) { showToast('Fill in all fields', 'error'); return; }
+  const btn = document.getElementById('settings-imap-connect-btn' + suffix);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  const apiEndpoint = acct === '2' ? '/api/connect/2' : '/api/connect';
+  const msgEl = document.getElementById('settings-imap-msg' + suffix);
+  try {
+    const res = await fetch(apiEndpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password,imap_server,imap_port})});
+    const data = await res.json();
+    if (data.status === 'connected') {
+      isConnected = true;
+      document.getElementById('fetch-btn').disabled = false;
+      document.getElementById('settings-imap-connect-btn' + suffix).style.display = 'none';
+      document.getElementById('settings-imap-disconnect-btn' + suffix).style.display = 'block';
+      updateStatusBadge();
+      if(msgEl) msgEl.innerHTML = '<span style="color:var(--success)">Connected</span>';
+      showToast('Account ' + acct + ' connected', 'success');
+    } else {
+      if(msgEl) msgEl.innerHTML = '<span style="color:var(--danger)">' + esc(data.message) + '</span>';
+      showToast('Failed', 'error');
+    }
+  } catch(err) {
+    if(msgEl) msgEl.innerHTML = '<span style="color:var(--danger)">' + esc(err.message) + '</span>';
+    showToast('Error', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Connect IMAP';
+}
+
+async function disconnectImap(acct) {
+  acct = acct || '1';
+  const suffix = acct === '2' ? '-2' : '';
+  const apiEndpoint = acct === '2' ? '/api/disconnect/2' : '/api/disconnect';
+  await fetch(apiEndpoint, {method:'POST'});
+  document.getElementById('settings-imap-connect-btn' + suffix).style.display = 'block';
+  document.getElementById('settings-imap-disconnect-btn' + suffix).style.display = 'none';
+  const msgEl = document.getElementById('settings-imap-msg' + suffix);
+  if(msgEl) msgEl.innerHTML = '';
+  updateStatusBadge();
+  showToast('Account ' + acct + ' disconnected', 'info');
+}
+
+function updateStatusBadge() {
+  fetch('/api/status').then(r=>r.json()).then(d => {
+    const parts = [];
+    if (d.gmail_authenticated || d.gmail_authenticated_2) {
+      if (d.gmail_authenticated) parts.push('Gmail1');
+      if (d.gmail_authenticated_2) parts.push('Gmail2');
+    }
+    if (d.connected) parts.push('IMAP1');
+    if (d.connected_2) parts.push('IMAP2');
+    const badge = document.getElementById('status-badge');
+    if (parts.length) {
+      badge.textContent = parts.join(' + ');
+      badge.className = 'connected';
+    } else {
+      badge.textContent = 'Disconnected';
+      badge.className = '';
+    }
+    const anyConnected = d.gmail_authenticated || d.connected || d.gmail_authenticated_2 || d.connected_2;
+    document.getElementById('fetch-btn').disabled = !anyConnected;
+    document.getElementById('update-btn').disabled = !anyConnected;
+  }).catch(()=>{});
+}
+
+/* LLM */
+function loadLLMStatus() {
+  fetch('/api/llm/status')
+    .then(r => r.json())
+    .then(d => {
+      renderLLMModels(d.models || {}, d.downloaded_models || [], d.ready, d.model, d.download_status, d.download_message);
+      if (d.download_status === 'downloading') {
+        setTimeout(loadLLMStatus, 3000);
+      }
+    })
+    .catch(() => setTimeout(loadLLMStatus, 5000));
+}
+
+function renderLLMModels(models, downloaded, ready, activeModel, dlStatus, dlMsg) {
+  const container = document.getElementById('llm-models-status');
+  const modelSelect = document.getElementById('llm-model');
+  const hint = document.getElementById('llm-model-hint');
+  const modelSizes = {distilbert: '260MB', 'gemma-2b': '3.1GB'};
+  let active = (activeModel || modelSelect.value);
+  if (activeModel && modelSelect.value !== activeModel) {
+    modelSelect.value = activeModel;
+  }
+  let html = '';
+  for (const [key, info] of Object.entries(models)) {
+    const isCached = info.cached;
+    const isActive = ready && active === key;
+    const isDownloading = dlStatus === 'downloading' && active === key;
+    let statusHtml, actionHtml;
+    if (isActive) {
+      statusHtml = '<span class="dot green"></span>Ready & loaded';
+      actionHtml = '';
+      hint.textContent = key + ' (' + (modelSizes[key]||'') + ') - loaded';
+    } else if (isCached) {
+      statusHtml = '<span class="dot green"></span>Cached';
+      actionHtml = '<button class="btn btn-primary btn-sm" onclick="loadModel(\'' + key + '\')">Load</button>';
+    } else if (isDownloading) {
+      statusHtml = '<span class="dot blue"></span>Downloading...';
+      actionHtml = '<button class="btn btn-primary btn-sm" disabled><span class="spinner"></span></button>';
+    } else {
+      statusHtml = '<span class="dot yellow"></span>Not downloaded';
+      actionHtml = '<button class="btn btn-primary btn-sm" onclick="downloadModel(\'' + key + '\')">Download</button>';
+    }
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">' +
+      '<div style="font-size:12px;">' + key + ' <span style="color:var(--text3);font-size:10px;">(' + (modelSizes[key]||'') + ')</span></div>' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<span class="llm-status" style="font-size:11px;color:var(--text2);">' + statusHtml + '</span>' +
+        actionHtml +
+      '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+async function downloadModel(key) {
+  const sizes = {distilbert: '260MB', 'gemma-2b': '3.1GB'};
+  showToast('Downloading ' + key + ' (' + (sizes[key]||'') + ')...', 'info');
+  try {
+    const res = await fetch('/api/llm/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model: key})});
+    const data = await res.json();
+    if (data.status === 'downloading') {
+      setTimeout(loadLLMStatus, 2000);
+    } else {
+      showToast(data.message || 'Error', 'error');
+    }
+  } catch(err) { showToast('Download failed', 'error'); }
+}
+
+async function loadModel(key) {
+  try {
+    const res = await fetch('/api/llm/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model: key})});
+    const data = await res.json();
+    if (data.status === 'downloading' || data.status === 'ok') {
+      saveSetting('llm_model', key);
+      document.getElementById('llm-model').value = key;
+      setTimeout(loadLLMStatus, 2000);
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch(err) { showToast('Error', 'error'); }
+}
+
+/* Model switching */
+function onModelChange(key) {
+  saveSetting('llm_model', key);
+  fetch('/api/llm/status')
+    .then(r => r.json())
+    .then(d => {
+      const cached = (d.models || {})[key] && d.models[key].cached;
+      if (cached) {
+        loadModel(key);
+      }
+    })
+    .catch(() => {});
+}
+
+/* Trusted Senders */
+async function loadTrustedSenders() {
+  try {
+    const res = await fetch('/api/settings');
+    const s = await res.json();
+    const list = s.trusted_senders || [];
+    renderTrustedSenders(list);
+  } catch {}
+}
+
+function renderTrustedSenders(list) {
+  const container = document.getElementById('trusted-list');
+  if (!list.length) { container.innerHTML = '<div style="font-size:11px;color:var(--text3);">No trusted senders added.</div>'; return; }
+  container.innerHTML = list.map((t, i) =>
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);">' +
+      '<span style="font-size:12px;">' + esc(t) + '</span>' +
+      '<button class="btn btn-danger btn-sm" onclick="removeTrustedSender(' + i + ')">Remove</button>' +
+    '</div>'
+  ).join('');
+}
+
+async function addTrustedSender() {
+  const input = document.getElementById('trusted-input');
+  const val = input.value.trim();
+  if (!val) { showToast('Enter an email address', 'error'); return; }
+  try {
+    const res = await fetch('/api/settings');
+    const s = await res.json();
+    const list = s.trusted_senders || [];
+    if (list.includes(val)) { showToast('Already in list', 'error'); return; }
+    list.push(val);
+    await fetch('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({trusted_senders: list})});
+    renderTrustedSenders(list);
+    input.value = '';
+    showToast('Trusted sender added', 'success');
+  } catch { showToast('Error saving', 'error'); }
+}
+
+async function removeTrustedSender(idx) {
+  try {
+    const res = await fetch('/api/settings');
+    const s = await res.json();
+    const list = s.trusted_senders || [];
+    list.splice(idx, 1);
+    await fetch('/api/settings', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({trusted_senders: list})});
+    renderTrustedSenders(list);
+    showToast('Removed', 'info');
+  } catch { showToast('Error saving', 'error'); }
+}
+
+/* Fetch */
+async function updateNewEmails() {
+  const btn = document.getElementById('update-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res = await fetch('/api/fetch/new', {method:'POST'});
+    const data = await res.json();
+    if (data.status === 'success' || data.status === 'ok') {
+      if (data.new_emails > 0) {
+        showToast('Found ' + data.new_emails + ' new emails' + (data.assignments_found ? ', ' + data.assignments_found + ' assignments' : ''), 'success');
+      } else {
+        showToast('No new emails', 'info');
+      }
+      refreshLists();
+    } else { showToast(data.message, 'error'); }
+  } catch(err) { showToast('Update error', 'error'); }
+  btn.disabled = false;
+  btn.textContent = 'Update for New Emails';
+}
+
+async function fetchEmails() {
+  const btn = document.getElementById('fetch-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res = await fetch('/api/fetch', {method:'POST'});
+    const data = await res.json();
+    if (data.status === 'success') {
+      let msg = 'Fetched ' + data.total_emails + ' emails';
+      if (data.new_emails > 0) msg += ' (' + data.new_emails + ' new)';
+      if (data.assignments_found > 0) msg += ', ' + data.assignments_found + ' assignments';
+      showToast(msg, 'success');
+      refreshLists();
+    } else { showToast(data.message, 'error'); }
+  } catch(err) { showToast('Fetch error', 'error'); }
+  btn.disabled = false;
+  btn.textContent = 'Fetch Emails';
+}
+
+/* Resort */
+async function resortAll() {
+  const btn = document.getElementById('resort-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res = await fetch('/api/resort', {method:'POST'});
+    const data = await res.json();
+    if (data.status === 'ok') {
+      showToast('Re-sorted: ' + data.assignments_found + ' assignments found', 'success');
+      if (data.time) document.getElementById('resort-info').textContent = 'Last: ' + data.time;
+      refreshLists();
+    } else { showToast(data.message, 'error'); }
+  } catch(err) { showToast('Resort error', 'error'); }
+  btn.disabled = false;
+  btn.textContent = 'Re-sort All';
+}
+
+/* Lists */
+async function refreshLists() {
+  await Promise.all([loadEmails(), loadAssignments()]);
+}
+
+async function loadEmails() {
+  try {
+    const res = await fetch('/api/emails');
+    const data = await res.json();
+    renderEmailList(data.emails);
+    document.getElementById('email-count').textContent = data.count;
+  } catch {}
+}
+
+async function loadAssignments() {
+  try {
+    const res = await fetch('/api/assignments');
+    const data = await res.json();
+    renderAssignmentList(data.assignments);
+    document.getElementById('assignment-count').textContent = data.count;
+  } catch {}
+}
+
+function renderEmailList(emails) {
+  const container = document.getElementById('email-list');
+  if (!emails.length) { container.innerHTML = '<div class="empty-state"><p>No emails in the database.</p></div>'; return; }
+  container.innerHTML = emails.map(e =>
+    '<div class="email-item">' +
+      '<div class="email-content">' +
+        '<div class="email-sender">' + esc(e.sender) + ' <span style="font-size:9px;color:var(--text3);background:var(--surface2);padding:1px 5px;border:1px solid var(--border);">Acct ' + (e.account||1) + '</span></div>' +
+        '<div class="email-subject">' + esc(e.subject) + '</div>' +
+        '<div class="email-body">' + esc(e.body) + '</div>' +
+        '<div class="email-date">' + formatDate(e.received_date) + '</div>' +
+      '</div>' +
+      '<div class="email-actions">' +
+        '<button class="btn btn-primary btn-sm" onclick="moveToAssignment(' + e.id + ')">Assign</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteEmail(' + e.id + ')">Delete</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function renderAssignmentList(assignments) {
+  const container = document.getElementById('assignment-list');
+  if (!assignments.length) { container.innerHTML = '<div class="empty-state"><p>No assignments found.</p></div>'; return; }
+  container.innerHTML = assignments.map(a =>
+    '<div class="email-item">' +
+      '<div class="email-content">' +
+        '<div class="email-sender">' + esc(a.sender) + '</div>' +
+        '<div class="email-subject">' + esc(a.subject) + '</div>' +
+        '<div class="email-body">' + esc(a.body) + '</div>' +
+        '<div class="email-date">' + formatDate(a.received_date) + ' <span style="color:var(--success);font-weight:500">' + a.status + '</span></div>' +
+      '</div>' +
+      '<div class="email-actions">' +
+        '<button class="btn btn-success btn-sm" onclick="completeAssignment(' + a.id + ')">Complete</button>' +
+        '<button class="btn btn-warning btn-sm" onclick="discardAssignment(' + a.id + ')">Discard</button>' +
+        '<button class="btn btn-outline btn-sm" onclick="moveToMail(' + a.id + ')">To Mail</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+async function moveToAssignment(id) {
+  const r = await (await fetch('/api/emails/'+id+'/move-to-assignment',{method:'POST'})).json();
+  if (r.status==='ok') { showToast('Moved','success'); refreshLists(); } else showToast(r.message,'error');
+}
+async function deleteEmail(id) {
+  if (!confirm('Delete permanently?')) return;
+  const r = await (await fetch('/api/emails/'+id+'/delete',{method:'POST'})).json();
+  if (r.status==='ok') { showToast('Deleted','info'); refreshLists(); } else showToast(r.message,'error');
+}
+async function completeAssignment(id) {
+  const r = await (await fetch('/api/assignments/'+id+'/complete',{method:'POST'})).json();
+  if (r.status==='ok') { showToast('Completed','success'); refreshLists(); } else showToast(r.message,'error');
+}
+async function discardAssignment(id) {
+  const r = await (await fetch('/api/assignments/'+id+'/discard',{method:'POST'})).json();
+  if (r.status==='ok') { showToast('Discarded','info'); refreshLists(); } else showToast(r.message,'error');
+}
+async function moveToMail(id) {
+  const r = await (await fetch('/api/assignments/'+id+'/move-to-mail',{method:'POST'})).json();
+  if (r.status==='ok') { showToast('Moved to mail','info'); refreshLists(); } else showToast(r.message,'error');
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  try {
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return d;
+    const diff = new Date() - date;
+    if (diff < 86400000) return 'Today ' + date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    if (diff < 172800000) return 'Yesterday';
+    if (diff < 604800000) return date.toLocaleDateString([], {weekday:'short'});
+    return date.toLocaleDateString([], {month:'short',day:'numeric'});
+  } catch { return d; }
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function checkInitialStatus() {
+  fetch('/api/status').then(r=>r.json()).then(d => {
+    if (d.gmail_authenticated) {
+      document.getElementById('gmail-connect-btn').style.display = 'none';
+      document.getElementById('gmail-disconnect-btn').style.display = 'block';
+    }
+    if (d.gmail_authenticated_2) {
+      document.getElementById('gmail-connect-btn-2').style.display = 'none';
+      document.getElementById('gmail-disconnect-btn-2').style.display = 'block';
+    }
+    if (d.connected) {
+      document.getElementById('settings-imap-connect-btn').style.display = 'none';
+      document.getElementById('settings-imap-disconnect-btn').style.display = 'block';
+    }
+    if (d.connected_2) {
+      document.getElementById('settings-imap-connect-btn-2').style.display = 'none';
+      document.getElementById('settings-imap-disconnect-btn-2').style.display = 'block';
+    }
+    if (d.gmail_authenticated || d.connected || d.gmail_authenticated_2 || d.connected_2) {
+      isConnected = true;
+      document.getElementById('fetch-btn').disabled = false;
+      document.getElementById('update-btn').disabled = false;
+    }
+    if (d.theme) applyTheme(d.theme);
+    if (d.classification_method) document.getElementById('class-method').value = d.classification_method;
+    if (d.llm_model) document.getElementById('llm-model').value = d.llm_model;
+    if (d.last_resort) document.getElementById('resort-info').textContent = 'Last: ' + d.last_resort;
+    updateStatusBadge();
+  }).catch(()=>{});
+  loadLLMStatus();
+}
+
+checkInitialStatus();
+loadSettings();
+loadTrustedSenders();
+checkClientSecretStatus();
+refreshLists();
+</script>
+</body>
+</html>

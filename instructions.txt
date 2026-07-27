@@ -1,0 +1,138 @@
+=== ASSIGNMENT TRACKER - SETUP INSTRUCTIONS ===
+
+============================================
+1. INSTALL DEPENDENCIES (one-time)
+============================================
+
+Run this in the project folder:
+
+    pip install -r requirements.txt
+
+
+============================================
+2. GOOGLE CLOUD SETUP (one-time, ~5 min)
+============================================
+
+This is required to use the "Connect with Google" button.
+
+Step-by-step:
+
+  1. Go to https://console.cloud.google.com/
+
+  2. Click the project dropdown at the top -> "New Project"
+     - Name: "Assignment Tracker"
+     - Click "Create"
+
+  3. With the new project selected:
+     - Go to "APIs & Services" (left menu) -> "Library"
+     - Search for "Gmail API"
+     - Click on it -> "Enable"
+
+  4. Go to "APIs & Services" -> "Credentials"
+     - Click "Create Credentials" -> "OAuth client ID"
+     
+  5. You MUST configure the consent screen:
+     - Go to "APIs & Services" -> "OAuth consent screen"
+     - User Type: "External" -> "Create"
+     - App name: "Assignment Tracker"
+     - User support email: your email address
+     - Developer contact info: your email address
+     - Click "Save and Continue"
+     - Skip "Scopes" (just click Save and Continue)
+     - Under "Test users", click "+ Add Users"
+     - Enter YOUR GMAIL ADDRESS (the one you'll use with the app)
+     - Click "Save and Continue"
+     - Go back to "Credentials"
+
+  6. Now click "Create Credentials" -> "OAuth client ID"
+     - Application type: "Web application"
+     - Name: "Assignment Tracker"
+     - Under "Authorized redirect URIs", click "+ Add URI"
+     - Add BOTH of these (click + Add URI twice):
+         http://localhost:5000/api/gmail/callback
+         http://127.0.0.1:5000/api/gmail/callback
+     - Click "Create"
+
+  7. A popup appears with your Client ID and Client Secret.
+     Click "Download JSON"
+
+  8. Save the downloaded file as "client_secret.json"
+     in the project folder (Assignment Tracker folder).
+
+
+============================================
+3. RUN THE APP
+============================================
+
+    python main.py
+
+Then open http://127.0.0.1:5000 in your browser.
+
+Click the gear icon (top-right) to open Settings.
+Connect via Gmail API or IMAP, then click "Fetch Emails".
+
+
+============================================
+4. SETTINGS (gear icon)
+============================================
+
+- Connection: Gmail API (OAuth) or IMAP (username/password)
+- Classification Method:
+    * Keyword-based (default, no download needed)
+    * LLM-based (AI) - click "Download" to get the model (~260MB)
+- Theme: Dark / Light mode
+- Re-sort All: re-runs classification on all stored emails
+
+
+============================================
+5. HOW TO USE
+============================================
+
+- Click "Fetch Emails" to fetch your latest inbox emails.
+- Emails are auto-classified into Assignments based on the
+  selected method.
+- Two tabs: "Emails" and "Assignments"
+
+In the "Emails" tab:
+  - "Assign" -> move an email to the Assignments list
+  - "Delete" -> permanently remove
+
+In the "Assignments" tab:
+  - "Complete" -> removes from both lists (done)
+  - "Discard" -> removes from both lists (not relevant)
+  - "To Mail" -> removes from assignments, keeps in inbox
+
+To re-classify all stored emails (e.g. after switching method):
+  - Click "Re-sort All" on the main screen
+
+
+============================================
+6. LLM-BASED CLASSIFICATION
+============================================
+
+The app can use a local AI model (distilbert) for smarter
+assignment detection instead of simple keywords.
+
+To use it:
+  1. Open Settings (gear icon)
+  2. Under "Classification", click "Download"
+  3. Wait for the ~260MB model to download (one-time)
+  4. Switch the Method dropdown to "LLM-based (AI)"
+  5. Click "Re-sort All" to re-classify existing emails
+
+
+============================================
+7. TROUBLESHOOTING
+============================================
+
+Q: "client_secret.json not found"
+A: You skipped the Google Cloud setup. Follow section 2.
+
+Q: OAuth error / redirect mismatch
+A: Make sure "http://localhost:5000/api/gmail/callback" is
+   in Authorized redirect URIs in Google Cloud Console.
+
+Q: IMAP alternative
+A: For Gmail: use an App Password from
+   https://myaccount.google.com/apppasswords
+   (requires 2-factor authentication).

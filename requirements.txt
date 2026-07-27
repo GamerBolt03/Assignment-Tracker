@@ -1,0 +1,8 @@
+flask>=3.0.0
+google-api-python-client>=2.0.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+transformers>=4.40.0
+torch>=2.0.0
+pywebview>=4.0.0
+pyinstaller>=6.0.0
